@@ -1,184 +1,73 @@
+import os.path
 import csv
-import string
+
+file_dir = os.path.dirname(os.path.realpath('__file__'))
+dir_path = 'PythonBasics/game-statistics-python'
 
 
 def count_games(file_name):
-    file = open(file_name, "r")
-    reader = csv.reader(file)
-    counter = 0
-    for rows in reader:
-        counter = counter + 1
-    file.close()
-    return counter
+    count = 0
+    with open(os.path.join(file_dir, dir_path, file_name), 'r') as f:
+        rows = f.readlines()
+        for row in rows:
+            count += 1
+    f.close()
+    return count
 
 
 def decide(file_name, year):
-    year = str(year)
-    flag = 0
-    index = 0
-    file = open(file_name, "r")
-    for line in file:
-        line_split = line.split()
-        index += 1
-        for i in line_split:
-            if year == i:
-                flag = 1
-                break
-    file.close()
-    if flag == 1:
+    with open(os.path.join(file_dir, dir_path, file_name), 'r') as f:
+        reader = csv.reader(f, delimiter="\t")
+        years_col = list(zip(*reader))[2]
+        f.close()
+    if str(year) in years_col:
         return True
-    else:
-        return False
-    pass
+    return False
 
 
 def get_latest(file_name):
-    var = 0
-    file = open(file_name, "r")
-    for line in file:
-        result = line.split()
-        for i in result:
-            if i.isnumeric():
-                if int(i) > var:
-                    var = int(i)
-    file.close()
-    file = open(file_name, "r")
-    var = str(var)
-
-    for line in file:
-        title = line.split()
-        for i in title:
-            if i == var:
-                answ = title
-    file.close()
-    word_count = 0
-    for i in answ:
-        if i.isnumeric():
-            break
-        else:
-            word_count += 1
-    result = answ[0:word_count]
-    result = ' '.join(result)
-    return result
-
-    pass
-
+    with open(os.path.join(file_dir, dir_path, file_name), 'r') as f:
+        reader = csv.reader(f, delimiter="\t")
+        games_yr_dict = {rows[0]: rows[2] for rows in reader}
+        max_year = max(games_yr_dict.values())
+        max_yr_game = max(games_yr_dict, key=games_yr_dict.get)
+        f.close()
+        return f'{max_yr_game} {max_year}'
+    
 
 def count_by_genre(file_name, genre):
-    file = open(file_name, "r")
-    line_split_genre = genre.split()
-    if len(line_split_genre) > 3:
-        line_split_genre = ''.join(line_split_genre)
-    if len(line_split_genre) == 1:
-        counter = 0
-        for line in file:
-            row = line.split()
-            for i in row:
-                if i in line_split_genre:
-                    counter += 1
-        file.close()
-        return counter
-    else:
-        y = len(line_split_genre) - 1
-        counter = 0
-        for line in file:
-            row = line.split()
-            for i in range(len(row) - 1):
-                if row[i:i+y] == line_split_genre[0:y]:
-                    counter += 1
-        file.close()
-        return counter
-
-    pass
+    with open(os.path.join(file_dir, dir_path, file_name), 'r') as f:
+        reader = csv.reader(f, delimiter="\t")
+        games_genre_dict = [rows[3] for rows in reader if rows[3].lower() == genre.lower()]
+        f.close()
+    return len(games_genre_dict)  
 
 
 def get_line_number_by_title(file_name, title):
-    movie_list = []
-    game_title = 0
-    result = None
-    with open(file_name, "r") as f:
-        for lines in f.readlines():
-            movie_list.append(lines.strip().split("\t"))
-
-    for i in range(len(movie_list)):
-        if movie_list[i][game_title] == title: 
-            result = i + 1
-
-    if result is not None:
-        return result
-    else:
-        raise ValueError
-    
-    pass
+    with open(os.path.join(file_dir, dir_path, file_name), 'r') as f:
+        reader = csv.reader(f, delimiter='\t')
+        title_list = [row[0] for row in reader]
+        for i, value in enumerate(title_list):
+            if title in value:
+                return i + 1
+            f.close()
+        raise ValueError('no such title')
 
 
 def sort_abc(file_name):
-    games = []
-    games_ordered = []
-    game_title = 0
-    with open(file_name, "r") as f:
-        for lines in f.readlines():
-            games.append(lines.strip().split("\t"))
-
-    while games:
-        min_index = 0
-        minimum = games[0][game_title]
-        for i in range(len(games)):
-            if games[i][game_title] < minimum:
-                minimum = games[i][game_title]
-                min_index = i
-        games_ordered.append(minimum)
-        games.remove(games[min_index])
-    return (games_ordered)
-    pass
+    
 
 
 def get_genres(file_name):
-    games = []
-    genres = []
-    genre = 3
-    with open(file_name, "r") as f:
-        for lines in f.readlines():
-            games.append(lines.strip().split("\t"))
-
-    while games:    
-        min_index = 0
-        minimum = games[0][genre]
-        for i in range(len(games)):
-            if games[i][genre] < minimum:
-                minimum = games[i][genre]
-                min_index = i
-        games.remove(games[min_index])
-        if minimum not in genres:
-            genres.append(minimum)
-    return genres
-
     pass
 
 
 def when_was_top_sold_fps(file_name):
-    games = []
-    fps = []
-    genre = 3
-    year = 2
-    total_copies = 1
-    with open(file_name, "r") as f:
-        for lines in f.readlines():
-            games.append(lines.strip().split("\t"))
-
-    for i in range(len(games)):
-        if games[i][genre] == "First-person shooter":
-            fps.append(games[i])
-
-    if fps == []:
-        raise ValueError
-    
-    maximum = float(fps[0][total_copies])
-    result = ""
-    for i in range(len(fps)):
-        if float(fps[i][total_copies]) > maximum:
-            maximum = float(fps[i][total_copies])
-            result = fps[i][year]
-
-    return int(result)
     pass
+
+
+if __name__ == '__main__':
+    # print(count_games('game_stat.txt'))
+    # print(decide('game_stat.txt', 2000))
+    # print(count_by_genre('game_stat.txt', genre='Real-time strategy'))
+    print(get_line_number_by_title('game_stat.txt', 'StarCraft II'))
