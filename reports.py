@@ -25,6 +25,7 @@ def decide(file_name, year):
 
 
 def get_latest(file_name):
+
     with open(os.path.join(file_dir, file_name), 'r') as f:
         reader = csv.reader(f, delimiter="\t")
         games_yr_dict = {rows[0]: rows[2] for rows in reader}
@@ -77,6 +78,19 @@ def get_genres(file_name):
 
 
 def when_was_top_sold_fps(file_name):
+    
+    with open(os.path.join(file_dir, file_name), 'r') as f:
+        reader = csv.reader(f, delimiter="\t")
+        fps_dict = {rows[1]: rows[2] for rows in reader if rows[3] == 'First-person shooter'}
+        print(fps_dict)
+        keys_list = [key for key in fps_dict.keys()]
+        print(keys_list)
+        max_sales = max(keys_list, key=lambda x: float(x))
+        return f'{max_sales} {fps_dict[max_sales]}'
+
+
+        f.close()
+        # return f' {max_sales}'
 
 
 
